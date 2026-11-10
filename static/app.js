@@ -6,7 +6,7 @@
   const toastEl = document.getElementById('toast');
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const PASS_SCORE = 80;
-  const S = { setupNeeded: false, setupCode: false, user: null, content: null, progress: {} };
+  const S = { setupNeeded: false, setupCode: false, ai: false, user: null, content: null, progress: {} };
   let activeRec = null;
 
   // ------------------------------------------------------------ helpers
@@ -98,6 +98,7 @@
       const st = await api('/api/state');
       S.setupNeeded = st.setup_needed;
       S.setupCode = st.setup_code_required;
+      S.ai = st.ai_enabled;
       S.user = st.user;
       if (S.user) await loadData();
       render();
@@ -126,6 +127,7 @@
       return show(viewPractice(scenario, Number(parts[2]), parts[3] === 'listen' ? 'listen' : 'speak'));
     }
     if (parts[0] === 'conta') return show(viewAccount());
+    if (parts[0] === 'chat') return show(viewChat());
     return show(viewHome());
   }
 
@@ -195,6 +197,11 @@
           h('p', {}, 'Escolha uma situação e pratique em voz alta.'),
           h('div', { class: 'overall' }, bar(done / all.length),
             h('span', {}, done + ' de ' + all.length + ' frases faladas'))),
+        h('button', { class: 'talk-card', type: 'button', onclick: () => go('#/chat') },
+          h('span', { class: 'emoji', 'aria-hidden': 'true' }, '💬'),
+          h('span', {}, h('b', {}, 'Conversar com a Amy'),
+            h('span', {}, 'Escolha o assunto e converse em voz alta. Ela corrige você com carinho.'))),
+        h('h2', { class: 'section-title' }, 'Frases prontas para treinar'),
         h('div', { class: 'grid' }, S.content.scenarios.map((s) => {
           const n = s.phrases.filter(spoken).length;
           return h('button', { class: 'scenario', type: 'button', onclick: () => go('#/c/' + s.id) },
@@ -480,6 +487,183 @@
             catch (ex) { toast(ex.message); }
           } }, 'Apagar'))))),
       form);
+  }
+
+  // ------------------------------------------------------------ free conversation with the AI tutor
+
+  const chat = { topic: null, items: [], busy: false, error: '' };
+  let chatRedraw = () => {};
+  const TOPICS = ['Meu dia', 'Minha família', 'Compras', 'Comida e receitas', 'Médico e saúde',
+    'Escola dos filhos', 'Vizinhos e amigos', 'Viagens'];
+
+  function recognize(lang, onDone, onFail, onState) {
+    stopAudio();
+    const rec = new SR();
+    rec.lang = lang;
+    rec.interimResults = false;
+    rec.maxAlternatives = 5;
+    let settled = false;
+    rec.onresult = (e) => {
+      settled = true;
+      const r = e.results[0];
+      onDone(Array.from(r).map((a) => a.transcript), r[0].confidence);
+    };
+    rec.onerror = (e) => {
+      settled = true;
+      if (e.error !== 'aborted') onFail(MIC_ERRORS[e.error] || 'Não consegui ouvir. Tente de novo.');
+    };
+    rec.onend = () => {
+      if (activeRec === rec) activeRec = null;
+      onState(false);
+      if (!settled) onFail(MIC_ERRORS['no-speech']);
+    };
+    try { rec.start(); } catch (e) { onFail('Não consegui ligar o microfone. Tente de novo.'); return; }
+    activeRec = rec;
+    onState(true);
+  }
+
+  async function chatSend(heard) {
+    if (chat.busy) return;
+    chat.busy = true;
+    chat.error = '';
+    const history = chat.items.map((it) => (it.role === 'tutor'
+      ? { role: 'assistant', text: it.en } : { role: 'user', text: it.text }));
+    let mine = null;
+    if (heard) {
+      mine = { role: 'user', text: heard.text, lang: heard.lang, fb: null };
+      chat.items.push(mine);
+    }
+    chatRedraw();
+    try {
+      const r = await api('/api/chat', { topic: chat.topic, messages: history, heard: heard || undefined });
+      if (mine) mine.fb = r.feedback;
+      chat.items.push({ role: 'tutor', en: r.reply_en, pt: r.reply_pt });
+      chat.busy = false;
+      chatRedraw();
+      say(r.reply_en, false);
+    } catch (e) {
+      if (mine) chat.items.pop();
+      chat.busy = false;
+      chat.error = e.message;
+      chatRedraw();
+    }
+  }
+
+  function feedbackCard(fb) {
+    if (!fb) return null;
+    const tips = (fb.pronunciation || []).length > 0 && h('ul', { class: 'tips' }, fb.pronunciation.map((t) => h('li', {},
+      h('button', { class: 'word miss', type: 'button', lang: 'en', onclick: () => say(t.word, true) }, '🔊 ' + t.word),
+      h('span', {}, t.hint_pt))));
+    if (fb.ok || !fb.better_en) {
+      return h('div', { class: 'fb good' }, h('b', {}, '✓ Muito bem! '), fb.explanation_pt, tips);
+    }
+    const drill = h('div', { 'aria-live': 'polite' });
+    const again = h('button', { class: 'btn small', type: 'button' }, '🎤 Repetir');
+    if (SR && window.isSecureContext) {
+      again.addEventListener('click', () => recognize('en-US',
+        (alts) => {
+          const r = L.best(fb.better_en, alts);
+          drill.replaceChildren(
+            h('p', { class: 'words' }, r.words.map((w) => h('span', { class: 'word ' + (w.ok ? 'ok' : 'miss') }, w.text))),
+            h('p', { class: 'muted small' }, r.score >= 90 ? 'Perfeito! ' + r.score + '%' : r.score + '%. Ouça e tente mais uma vez.'));
+        },
+        (msg) => drill.replaceChildren(h('p', { class: 'muted small' }, msg)),
+        (on) => { again.textContent = on ? 'Ouvindo…' : '🎤 Repetir'; }));
+    }
+    return h('div', { class: 'fb fix' },
+      h('span', { class: 'fb-label' }, 'Melhor assim:'),
+      h('p', { class: 'better', lang: 'en' }, fb.better_en),
+      h('div', { class: 'fb-actions' },
+        h('button', { class: 'btn small', type: 'button', onclick: () => say(fb.better_en, false) }, '🔊 Ouvir'),
+        h('button', { class: 'btn small', type: 'button', onclick: () => say(fb.better_en, true) }, '🐢 Devagar'),
+        SR && window.isSecureContext && again),
+      fb.explanation_pt && h('p', { class: 'fb-why' }, fb.explanation_pt),
+      tips, drill);
+  }
+
+  function bubble(it) {
+    if (it.role === 'user') {
+      return h('div', { class: 'turn mine' },
+        h('p', { class: 'bubble' }, (it.lang === 'pt-BR' ? '🇧🇷 ' : '') + it.text),
+        feedbackCard(it.fb));
+    }
+    const pt = h('p', { class: 'bubble-pt', hidden: true }, it.pt);
+    return h('div', { class: 'turn tutor' },
+      h('div', { class: 'bubble' }, h('p', { lang: 'en' }, it.en), pt,
+        h('div', { class: 'fb-actions' },
+          h('button', { class: 'btn small', type: 'button', onclick: () => say(it.en, false) }, '🔊'),
+          h('button', { class: 'btn small', type: 'button', onclick: () => say(it.en, true) }, '🐢'),
+          it.pt && h('button', { class: 'btn small', type: 'button', onclick: () => { pt.hidden = !pt.hidden; } }, 'Tradução'))));
+  }
+
+  function viewChat() {
+    if (!S.ai) {
+      return h('div', {}, topbar('💬 Conversar', '#/'), h('main', { class: 'page' },
+        h('p', { class: 'notice warn' }, 'A conversa com a Amy ainda não foi ativada. ',
+          S.user.is_admin ? 'Configure a variável ANTHROPIC_API_KEY no servidor (veja o README) e reinicie o aplicativo.'
+            : 'Peça ao administrador para ativar.')));
+    }
+    if (!chat.topic) {
+      const start = (topic) => { chat.topic = topic; chat.items = []; chat.error = ''; render(); };
+      const form = h('form', { class: 'row-form' },
+        h('input', { name: 'topic', placeholder: 'Outro assunto…', maxlength: 80, 'aria-label': 'Outro assunto' }),
+        h('button', { class: 'btn primary', type: 'submit' }, 'Começar'));
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const t = new FormData(form).get('topic').trim();
+        if (t) start(t);
+      });
+      return h('div', {}, topbar('💬 Conversar', '#/'), h('main', { class: 'page' },
+        h('h1', {}, 'Sobre o que você quer conversar?'),
+        h('p', { class: 'muted' }, 'A Amy fala inglês simples e devagar. Você pode pedir a tradução a qualquer momento.'),
+        h('div', { class: 'topic-list' }, TOPICS.map((t) => h('button', { class: 'chip', type: 'button', onclick: () => start(t) }, t))),
+        form));
+    }
+
+    const list = h('div', { class: 'chat-list' });
+    const status = h('p', { class: 'chat-status', 'aria-live': 'polite' });
+    const canTalk = SR && window.isSecureContext;
+    const send = (text, lang, extra) => chatSend(Object.assign({ text, lang }, extra));
+    const mic = h('button', { class: 'chat-mic', type: 'button' }, '🎤 Falar');
+    const micPt = h('button', { class: 'btn small', type: 'button' }, '🇧🇷 Não sei dizer em inglês');
+    const listenWith = (btn, lang, idle) => () => {
+      if (activeRec) { activeRec.stop(); return; }
+      recognize(lang,
+        (alts, confidence) => send(alts[0], lang, { alternatives: alts.slice(1), confidence }),
+        (msg) => { chat.error = msg; chatRedraw(); },
+        (on) => { btn.classList.toggle('on', on); btn.textContent = on ? 'Ouvindo… fale agora' : idle; });
+    };
+    mic.addEventListener('click', listenWith(mic, 'en-US', '🎤 Falar'));
+    micPt.addEventListener('click', listenWith(micPt, 'pt-BR', '🇧🇷 Não sei dizer em inglês'));
+    const typed = h('form', { class: 'row-form' },
+      h('input', { name: 'text', placeholder: 'ou escreva aqui…', maxlength: 300, autocomplete: 'off', 'aria-label': 'Escreva sua frase' }),
+      h('button', { class: 'btn', type: 'submit' }, 'Enviar'));
+    typed.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const t = new FormData(typed).get('text').trim();
+      if (!t || chat.busy) return;
+      typed.reset();
+      send(t, 'en-US', { typed: true });
+    });
+
+    chatRedraw = () => {
+      list.replaceChildren(...chat.items.map(bubble));
+      status.className = 'chat-status' + (chat.error ? ' notice bad' : ' muted');
+      status.textContent = chat.error || (chat.busy ? 'A Amy está pensando…' : '');
+      mic.disabled = micPt.disabled = chat.busy;
+      status.scrollIntoView({ block: 'end' });
+    };
+    const view = h('div', {},
+      topbar('💬 ' + chat.topic, '#/'),
+      h('main', { class: 'page chat-page' },
+        h('button', { class: 'btn small', type: 'button', onclick: () => { chat.topic = null; chat.items = []; render(); } }, 'Trocar de assunto'),
+        list, status),
+      h('footer', { class: 'chat-bar' },
+        canTalk ? [mic, micPt] : h('p', { class: 'muted small' }, 'Sem microfone neste navegador: escreva a sua frase.'),
+        typed));
+    chatRedraw();
+    if (!chat.items.length && !chat.busy) chatSend(null);
+    return view;
   }
 
   boot();

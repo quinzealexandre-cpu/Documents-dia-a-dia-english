@@ -6,6 +6,9 @@ Brazilian Portuguese; the practice content is in English.
 - 8 daily-life situations (supermarket, restaurant, doctor, school, small talk, phone, street, bank/post office), 64 phrases
 - **Falar (speaking):** she listens to the phrase, says it, and the app shows which words it understood and which to repeat
 - **Ouvir (listening):** she hears the phrase and rebuilds it from shuffled word tiles
+- **Conversar com a Amy (free conversation):** she picks any topic and talks with an AI tutor that answers
+  out loud in simple English, corrects her grammar and vocabulary in Portuguese, and flags likely
+  pronunciation problems. Needs an AI key, see below.
 - Login and password, one account per person, progress saved per account
 
 ## Requirements
@@ -36,6 +39,30 @@ Keep the black server window open while the app is in use.
 The phone must use the `https://` address. Browsers block the microphone on plain `http://` pages,
 except for `localhost` on the laptop itself.
 
+## Turn on the conversation tutor (Amy)
+
+The tutor is Claude, reached through Anthropic's API. It is billed by usage to your own Anthropic
+account, separately from any Claude subscription.
+
+1. Create an API key in the Claude Console (console.anthropic.com → API Keys) and add billing credit.
+2. Give the key to the app as the setting `ANTHROPIC_API_KEY`:
+   - **Render:** your service → Environment → add `ANTHROPIC_API_KEY` → save.
+   - **Azure:** add it to the `az webapp config appsettings set` command.
+   - **Laptop:** in a Command Prompt, run `set ANTHROPIC_API_KEY=your-key` and then `start.bat` in the same window.
+3. Reload the app. "Conversar com a Amy" on the home screen now opens the conversation.
+
+Optional settings: `APP_AI_MODEL` (default `claude-haiku-5-5`; a larger model gives richer corrections at
+higher cost) and `APP_AI_DAILY_TURNS` (default 300 sentences per person per day, a spending guard).
+
+How it works and what it cannot do:
+- The browser turns her speech into text; the text (never the audio) goes to Claude with the conversation so far.
+- Grammar and vocabulary corrections are reliable. Pronunciation feedback is indirect: the tutor only
+  sees what the speech recognizer understood, so it flags words that came out as something else, and
+  the "Repetir" button checks whether the corrected sentence is understood. It cannot judge accent or
+  individual sounds.
+- "Não sei dizer em inglês" lets her say something in Portuguese; Amy teaches the English for it.
+- Conversations are not stored on the server.
+
 ## Free test hosting on Render
 
 Render's free plan needs no credit card and gives the app a public `https://` address, so it works on
@@ -44,7 +71,8 @@ any phone, anywhere, with no certificate warning.
 1. Create a free account at github.com (or use yours), create a new **private** repository, and upload
    the contents of this folder (Add file → Upload files; drag everything in, including `static`).
 2. Sign up at render.com with that GitHub account.
-3. In Render: **New → Blueprint**, pick the repository. Render reads `render.yaml` and asks for four values:
+3. In Render: **New → Blueprint**, pick the repository. Render reads `render.yaml` and asks for these values
+   (`ANTHROPIC_API_KEY` is only needed for the conversation tutor):
    `APP_ADMIN_USER`, `APP_ADMIN_PASSWORD` (your login) and `APP_STUDENT_USER`, `APP_STUDENT_PASSWORD`
    (her login). Passwords need at least 8 characters.
 4. When the deploy finishes, open the `https://….onrender.com` address Render shows and log in.
@@ -100,7 +128,7 @@ Notes:
 - It works at home, on your Wi-Fi, while the laptop is on. To use it at the store or anywhere else,
   the laptop needs a private tunnel such as Tailscale.
 - Pronunciation feedback is word-level: it shows which words the recognizer understood. It does not
-  analyze individual sounds, and it does not yet correct grammar in free speech.
+  analyze individual sounds, and the phrase drills do not correct grammar; the conversation tutor does.
 - If the laptop's IP address changes, the phone address changes too. The server window always prints the current one.
 
 ## Files
