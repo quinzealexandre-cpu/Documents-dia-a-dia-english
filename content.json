@@ -1,0 +1,108 @@
+{
+  "scenarios": [
+    {
+      "id": "market", "emoji": "🛒", "title": "No supermercado",
+      "phrases": [
+        {"id": "market-1", "en": "Excuse me, where can I find the milk?", "pt": "Com licença, onde encontro o leite?", "tip": "\"Excuse me\" é a forma educada de chamar a atenção de alguém. Soa como \"ex-KIÚZ mi\"."},
+        {"id": "market-2", "en": "How much does this cost?", "pt": "Quanto custa isto?", "tip": "\"How much\" soa como \"RAU mâtch\". O H tem som de R suave, como em \"rato\"."},
+        {"id": "market-3", "en": "Do you have this in a smaller size?", "pt": "Vocês têm isto em um tamanho menor?", "tip": "Para pedir maior, troque \"smaller\" por \"bigger\"."},
+        {"id": "market-4", "en": "I'm looking for fresh bread.", "pt": "Estou procurando pão fresco.", "tip": "\"I'm looking for...\" serve para qualquer coisa que você procura. \"Bread\" soa como \"bréd\"."},
+        {"id": "market-5", "en": "Can I pay with a credit card?", "pt": "Posso pagar com cartão de crédito?", "tip": "\"Can I...?\" é o jeito mais comum de perguntar \"Posso...?\"."},
+        {"id": "market-6", "en": "I'd like a bag, please.", "pt": "Eu gostaria de uma sacola, por favor.", "tip": "\"I'd like\" é mais educado do que \"I want\". Soa como \"áid láik\"."},
+        {"id": "market-7", "en": "Is this on sale today?", "pt": "Isto está em promoção hoje?", "tip": "\"On sale\" = em promoção. \"For sale\" = à venda. Não confunda!"},
+        {"id": "market-8", "en": "Could I have the receipt, please?", "pt": "Pode me dar o recibo, por favor?", "tip": "Em \"receipt\" o P é mudo: diga \"ri-SÍT\"."}
+      ]
+    },
+    {
+      "id": "restaurant", "emoji": "🍽️", "title": "No restaurante",
+      "phrases": [
+        {"id": "restaurant-1", "en": "A table for four, please.", "pt": "Uma mesa para quatro, por favor.", "tip": "Troque o número: two, three, four, five."},
+        {"id": "restaurant-2", "en": "Could we see the menu, please?", "pt": "Podemos ver o cardápio, por favor?", "tip": "\"Menu\" soa como \"MÉ-niu\"."},
+        {"id": "restaurant-3", "en": "I'd like a glass of water.", "pt": "Eu gostaria de um copo de água.", "tip": "\"Water\" nos EUA soa quase como \"UÓ-der\"."},
+        {"id": "restaurant-4", "en": "What do you recommend?", "pt": "O que você recomenda?", "tip": "Ótima pergunta quando você não conhece os pratos."},
+        {"id": "restaurant-5", "en": "Is this dish spicy?", "pt": "Este prato é apimentado?", "tip": "\"Spicy\" soa como \"SPÁI-ci\". Não coloque um \"i\" antes do S: não é \"is-pái-ci\"."},
+        {"id": "restaurant-6", "en": "Can I get this to go?", "pt": "Posso levar isto para viagem?", "tip": "\"To go\" = para viagem. Nos EUA é muito comum levar o que sobrou."},
+        {"id": "restaurant-7", "en": "Can I have the check, please?", "pt": "Pode trazer a conta, por favor?", "tip": "Nos EUA a conta do restaurante é \"the check\"."},
+        {"id": "restaurant-8", "en": "Everything was delicious, thank you.", "pt": "Estava tudo delicioso, obrigada.", "tip": "No \"th\" de \"thank\" e \"everything\", coloque a ponta da língua entre os dentes e sopre."}
+      ]
+    },
+    {
+      "id": "doctor", "emoji": "🩺", "title": "No médico e na farmácia",
+      "phrases": [
+        {"id": "doctor-1", "en": "I need to make an appointment.", "pt": "Preciso marcar uma consulta.", "tip": "\"Appointment\" = consulta ou horário marcado. Soa como \"a-PÓINT-ment\"."},
+        {"id": "doctor-2", "en": "I have a headache and a fever.", "pt": "Estou com dor de cabeça e febre.", "tip": "\"Headache\" soa como \"RÉ-dêik\". O \"ch\" aqui tem som de K."},
+        {"id": "doctor-3", "en": "My son has a sore throat.", "pt": "Meu filho está com dor de garganta.", "tip": "Para filha, diga \"my daughter\" (\"DÓ-ter\")."},
+        {"id": "doctor-4", "en": "It hurts right here.", "pt": "Dói bem aqui.", "tip": "Aponte o lugar enquanto fala. \"Hurts\" soa como \"rârts\"."},
+        {"id": "doctor-5", "en": "How often should I take this medicine?", "pt": "De quanto em quanto tempo devo tomar este remédio?", "tip": "\"How often\" = com que frequência."},
+        {"id": "doctor-6", "en": "I need to pick up a prescription.", "pt": "Preciso retirar uma receita.", "tip": "\"Pick up\" = buscar, retirar. \"Prescription\" = receita médica."},
+        {"id": "doctor-7", "en": "Do you accept my insurance?", "pt": "Vocês aceitam o meu plano de saúde?", "tip": "\"Insurance\" soa como \"in-CHÚ-rans\"."},
+        {"id": "doctor-8", "en": "Do I need to come back?", "pt": "Preciso voltar?", "tip": "\"Come back\" = voltar."}
+      ]
+    },
+    {
+      "id": "school", "emoji": "🏫", "title": "Na escola dos filhos",
+      "phrases": [
+        {"id": "school-1", "en": "I'm here to pick up my son.", "pt": "Vim buscar o meu filho.", "tip": "\"Pick up\" de novo: buscar alguém."},
+        {"id": "school-2", "en": "My son will be absent today.", "pt": "Meu filho vai faltar hoje.", "tip": "\"Absent\" soa como \"ÁB-sent\"."},
+        {"id": "school-3", "en": "Can I talk to his teacher?", "pt": "Posso falar com o professor dele?", "tip": "\"His\" = dele. \"Her\" = dela."},
+        {"id": "school-4", "en": "How is he doing in class?", "pt": "Como ele está indo na aula?", "tip": "\"How is he doing?\" pergunta sobre o desempenho ou o bem-estar."},
+        {"id": "school-5", "en": "What time does school end?", "pt": "A que horas termina a aula?", "tip": "\"What time...?\" = A que horas...?"},
+        {"id": "school-6", "en": "Does he have homework today?", "pt": "Ele tem lição de casa hoje?", "tip": "\"Homework\" soa como \"RÔUM-uârk\"."},
+        {"id": "school-7", "en": "When is the next parent meeting?", "pt": "Quando é a próxima reunião de pais?", "tip": "\"Parent\" = pai ou mãe. \"Relatives\" = parentes."},
+        {"id": "school-8", "en": "Thank you for your help.", "pt": "Obrigada pela sua ajuda.", "tip": "Lembre do \"th\": língua entre os dentes."}
+      ]
+    },
+    {
+      "id": "smalltalk", "emoji": "👋", "title": "Conversa do dia a dia",
+      "phrases": [
+        {"id": "smalltalk-1", "en": "Hi, how are you doing today?", "pt": "Oi, como você está hoje?", "tip": "É um cumprimento. A resposta comum é \"Good, thanks! And you?\"."},
+        {"id": "smalltalk-2", "en": "Nice to meet you.", "pt": "Prazer em conhecer você.", "tip": "Use quando conhecer alguém pela primeira vez."},
+        {"id": "smalltalk-3", "en": "I'm from Brazil.", "pt": "Eu sou do Brasil.", "tip": "\"Brazil\" em inglês soa como \"bra-ZÍL\", com Z e força no final."},
+        {"id": "smalltalk-4", "en": "I'm still learning English.", "pt": "Ainda estou aprendendo inglês.", "tip": "Uma frase muito útil: as pessoas costumam ter mais paciência depois de ouvir isso."},
+        {"id": "smalltalk-5", "en": "Could you speak more slowly, please?", "pt": "Você poderia falar mais devagar, por favor?", "tip": "\"Slowly\" soa como \"SLÔU-li\"."},
+        {"id": "smalltalk-6", "en": "Can you repeat that, please?", "pt": "Pode repetir, por favor?", "tip": "Não tenha vergonha de pedir. Todo mundo pede!"},
+        {"id": "smalltalk-7", "en": "Have a great day!", "pt": "Tenha um ótimo dia!", "tip": "\"Great\" soa como \"grêit\"."},
+        {"id": "smalltalk-8", "en": "See you later!", "pt": "Até mais tarde!", "tip": "\"Later\" nos EUA soa quase como \"LÊI-der\"."}
+      ]
+    },
+    {
+      "id": "phone", "emoji": "☎️", "title": "Ao telefone",
+      "phrases": [
+        {"id": "phone-1", "en": "Hello, may I speak to the manager?", "pt": "Alô, posso falar com o gerente?", "tip": "\"May I...?\" é uma forma bem educada de pedir."},
+        {"id": "phone-2", "en": "I'm calling about my appointment.", "pt": "Estou ligando sobre a minha consulta.", "tip": "\"I'm calling about...\" = Estou ligando sobre..."},
+        {"id": "phone-3", "en": "Can you hold on a moment, please?", "pt": "Pode esperar um momento, por favor?", "tip": "\"Hold on\" = espere na linha."},
+        {"id": "phone-4", "en": "Sorry, I didn't understand.", "pt": "Desculpe, não entendi.", "tip": "\"Didn't\" soa como \"DÍ-dent\"."},
+        {"id": "phone-5", "en": "Could you spell that for me?", "pt": "Você poderia soletrar para mim?", "tip": "\"Spell\" = soletrar. Sem \"i\" antes do S."},
+        {"id": "phone-6", "en": "What time do you open?", "pt": "A que horas vocês abrem?", "tip": "Para fechar: \"What time do you close?\"."},
+        {"id": "phone-7", "en": "I'll call back later.", "pt": "Eu ligo de volta mais tarde.", "tip": "\"I'll\" = \"I will\". Soa como \"áil\"."},
+        {"id": "phone-8", "en": "Thank you, goodbye.", "pt": "Obrigada, tchau.", "tip": "Também pode dizer só \"bye\"."}
+      ]
+    },
+    {
+      "id": "street", "emoji": "🧭", "title": "Na rua e no transporte",
+      "phrases": [
+        {"id": "street-1", "en": "Excuse me, how do I get to the library?", "pt": "Com licença, como chego à biblioteca?", "tip": "Cuidado: \"library\" é biblioteca. Livraria é \"bookstore\"."},
+        {"id": "street-2", "en": "Is it far from here?", "pt": "É longe daqui?", "tip": "\"Far\" = longe. \"Near\" ou \"close\" = perto."},
+        {"id": "street-3", "en": "Turn left at the traffic light.", "pt": "Vire à esquerda no semáforo.", "tip": "\"Left\" = esquerda. \"Right\" = direita."},
+        {"id": "street-4", "en": "Where is the nearest restroom?", "pt": "Onde fica o banheiro mais próximo?", "tip": "Em lugares públicos nos EUA, diga \"restroom\"."},
+        {"id": "street-5", "en": "Does this bus go downtown?", "pt": "Este ônibus vai para o centro?", "tip": "\"Downtown\" = centro da cidade."},
+        {"id": "street-6", "en": "How long does it take?", "pt": "Quanto tempo leva?", "tip": "\"How long\" pergunta sobre tempo, não sobre distância."},
+        {"id": "street-7", "en": "I think I'm lost.", "pt": "Acho que estou perdida.", "tip": "\"Think\" começa com \"th\": língua entre os dentes. Não é \"sink\" nem \"fink\"."},
+        {"id": "street-8", "en": "Where can I park my car?", "pt": "Onde posso estacionar o meu carro?", "tip": "\"Park\" = estacionar. \"Parking lot\" = estacionamento."}
+      ]
+    },
+    {
+      "id": "services", "emoji": "🏦", "title": "Banco, correio e serviços",
+      "phrases": [
+        {"id": "services-1", "en": "I'd like to open an account.", "pt": "Eu gostaria de abrir uma conta.", "tip": "\"Account\" soa como \"a-CÁUNT\"."},
+        {"id": "services-2", "en": "I need to send this package to Brazil.", "pt": "Preciso enviar este pacote para o Brasil.", "tip": "\"Package\" soa como \"PÉ-kedj\"."},
+        {"id": "services-3", "en": "Where do I sign?", "pt": "Onde eu assino?", "tip": "Em \"sign\" o G é mudo: diga \"sáin\"."},
+        {"id": "services-4", "en": "Can you help me fill out this form?", "pt": "Pode me ajudar a preencher este formulário?", "tip": "\"Fill out\" = preencher. \"Form\" = formulário."},
+        {"id": "services-5", "en": "Here is my ID.", "pt": "Aqui está o meu documento.", "tip": "\"ID\" se fala letra por letra: \"ái-DÍ\"."},
+        {"id": "services-6", "en": "How long will it take to arrive?", "pt": "Quanto tempo vai levar para chegar?", "tip": "\"Arrive\" soa como \"a-RÁIV\"."},
+        {"id": "services-7", "en": "I'd like to return this item.", "pt": "Eu gostaria de devolver este item.", "tip": "\"Return\" = devolver. Leve sempre o \"receipt\" (recibo)."},
+        {"id": "services-8", "en": "Can I speak to someone who speaks Portuguese?", "pt": "Posso falar com alguém que fale português?", "tip": "Vale a pena perguntar: muitos lugares têm atendimento em português."}
+      ]
+    }
+  ]
+}

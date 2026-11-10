@@ -1,0 +1,17 @@
+# Render blueprint: New > Blueprint in the Render dashboard reads this file.
+services:
+  - type: web
+    name: dia-a-dia-english
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: APP_ADMIN_USER
+        sync: false
+      - key: APP_ADMIN_PASSWORD
+        sync: false
+      - key: APP_STUDENT_USER
+        sync: false
+      - key: APP_STUDENT_PASSWORD
+        sync: false
