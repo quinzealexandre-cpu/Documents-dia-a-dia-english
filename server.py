@@ -97,6 +97,8 @@ def init_db():
                 heard TEXT, created_at INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS attempts_user ON attempts(user_id, phrase_id, mode);
         """)
+        if "suspended" not in [r["name"] for r in conn.execute("PRAGMA table_info(users)")]:
+            conn.execute("ALTER TABLE users ADD COLUMN suspended INTEGER NOT NULL DEFAULT 0")
         conn.execute("DELETE FROM sessions WHERE expires_at < ?", (int(time.time()),))
     seed_accounts()
 
@@ -392,7 +394,7 @@ class Handler(BaseHTTPRequestHandler):
             with closing(db()) as conn:
                 user = conn.execute(
                     "SELECT u.id, u.username, u.is_admin FROM sessions s JOIN users u ON u.id = s.user_id "
-                    "WHERE s.token_hash = ? AND s.expires_at > ?", (th, int(time.time()))).fetchone()
+                    "WHERE s.token_hash = ? AND s.expires_at > ? AND u.suspended = 0", (th, int(time.time()))).fetchone()
         if required and not user:
             raise ApiError(401, "Faça login para continuar.")
         if admin and not user["is_admin"]:
@@ -476,11 +478,13 @@ class Handler(BaseHTTPRequestHandler):
         if _throttled(keys):
             raise ApiError(429, "Muitas tentativas. Espere 10 minutos e tente de novo.")
         with closing(db()) as conn:
-            row = conn.execute("SELECT id, pw_hash FROM users WHERE username = ?", (username,)).fetchone()
+            row = conn.execute("SELECT id, pw_hash, suspended FROM users WHERE username = ?", (username,)).fetchone()
         ok = verify_password(password, row["pw_hash"] if row else DUMMY_HASH) and row is not None
         if not ok:
             _record_fail(keys)
             raise ApiError(401, "Usuário ou senha incorretos.")
+        if row["suspended"]:
+            raise ApiError(403, "O seu acesso está pausado. Fale com o administrador.")
         with WRITE_LOCK, closing(db()) as conn, conn:
             cookie = self._start_session(conn, row["id"])
         return {"ok": True}, (cookie,)
@@ -574,8 +578,25 @@ class Handler(BaseHTTPRequestHandler):
     def r_users(self, _):
         self._user(admin=True)
         with closing(db()) as conn:
-            rows = conn.execute("SELECT id, username, is_admin FROM users ORDER BY id").fetchall()
-        return {"users": [{"id": r["id"], "username": r["username"], "is_admin": bool(r["is_admin"])} for r in rows]}
+            rows = conn.execute("SELECT id, username, is_admin, suspended FROM users ORDER BY id").fetchall()
+        return {"users": [{"id": r["id"], "username": r["username"], "is_admin": bool(r["is_admin"]),
+                           "suspended": bool(r["suspended"])} for r in rows]}
+
+    def r_user_suspend(self, body):
+        self._user(admin=True)
+        target, suspended = body.get("id"), body.get("suspended")
+        if not isinstance(suspended, bool):
+            raise ApiError(400, "Pedido inválido.")
+        with WRITE_LOCK, closing(db()) as conn, conn:
+            row = conn.execute("SELECT is_admin FROM users WHERE id = ?", (target,)).fetchone()
+            if not row:
+                raise ApiError(404, "Usuário não encontrado.")
+            if row["is_admin"]:
+                raise ApiError(400, "A conta de administrador não pode ser suspensa.")
+            conn.execute("UPDATE users SET suspended = ? WHERE id = ?", (int(suspended), target))
+            if suspended:
+                conn.execute("DELETE FROM sessions WHERE user_id = ?", (target,))
+        return {"ok": True}
 
     def r_user_create(self, body):
         self._user(admin=True)
@@ -622,6 +643,7 @@ ROUTES = {
     ("POST", "/api/users"): Handler.r_user_create,
     ("POST", "/api/users/reset"): Handler.r_user_reset,
     ("POST", "/api/users/delete"): Handler.r_user_delete,
+    ("POST", "/api/users/suspend"): Handler.r_user_suspend,
 }
 
 

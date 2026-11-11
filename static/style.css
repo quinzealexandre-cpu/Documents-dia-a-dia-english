@@ -258,3 +258,5 @@ button:disabled { opacity: .45; cursor: default; }
 }
 .chat-mic:active { transform: translateY(3px); box-shadow: 0 2px 0 #c94a27; }
 .chat-mic.on, .chat-bar .btn.on { animation: pulse 1.1s infinite; }
+.users .badge { margin-left: .5rem; }
+.user-actions { flex-wrap: wrap; }

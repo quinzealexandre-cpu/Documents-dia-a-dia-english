@@ -123,6 +123,8 @@ Notes:
 - Sessions use a random token in an HttpOnly, SameSite=Strict cookie (Secure over HTTPS), valid for 30 days.
 - Five wrong passwords for an account lock that login for 10 minutes.
 - Only the administrator can create accounts, reset passwords or delete accounts. There is no public sign-up.
+- The administrator can suspend an account (Conta → Pessoas com acesso → Suspender). A suspended person is
+  logged out everywhere and cannot log in, but keeps their progress; Reativar restores access.
 - Traffic from the phone is encrypted (TLS 1.2+). The plain `http://localhost:8080` address only answers on the laptop itself.
 - Everything lives in the `data` folder: `app.db` (accounts and progress), `cert.pem`, `key.pem`.
   Back up `app.db` to keep progress. Delete the `data` folder to reset everything.

@@ -473,8 +473,17 @@
     box.replaceChildren(
       h('h2', {}, 'Pessoas com acesso'),
       h('ul', { class: 'users' }, users.map((u) => h('li', {},
-        h('span', {}, h('b', {}, u.username), u.is_admin ? ' (administrador)' : ''),
+        h('span', {}, h('b', {}, u.username), u.is_admin ? ' (administrador)' : '',
+          u.suspended && h('span', { class: 'badge warn' }, 'Suspenso')),
         !u.is_admin && h('span', { class: 'user-actions' },
+          h('button', { class: 'btn small', type: 'button', onclick: async () => {
+            if (!u.suspended && !window.confirm('Suspender ' + u.username + '? A pessoa não vai conseguir entrar, mas o progresso fica guardado.')) return;
+            try {
+              await api('/api/users/suspend', { id: u.id, suspended: !u.suspended });
+              toast(u.suspended ? 'Acesso reativado.' : 'Acesso suspenso.');
+              drawUsers(box);
+            } catch (ex) { toast(ex.message); }
+          } }, u.suspended ? 'Reativar' : 'Suspender'),
           h('button', { class: 'btn small', type: 'button', onclick: async () => {
             const pw = window.prompt('Nova senha para ' + u.username + ' (mínimo 8 caracteres):');
             if (!pw) return;
