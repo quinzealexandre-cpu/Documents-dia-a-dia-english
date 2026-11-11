@@ -11,19 +11,28 @@
     "doesn't": 'does not', "didn't": 'did not', "can't": 'can not', "cannot": 'can not',
     "couldn't": 'could not', "isn't": 'is not', "aren't": 'are not', "won't": 'will not',
     "wouldn't": 'would not', "let's": 'let us', "ok": 'okay',
+    "we'd": 'we would', "you'd": 'you would', "we'll": 'we will', "you'll": 'you will',
+    "it'll": 'it will', "they'll": 'they will', "he'll": 'he will', "she'll": 'she will',
+    "you've": 'you have', "we've": 'we have', "they've": 'they have', "haven't": 'have not',
+    "hasn't": 'has not', "wasn't": 'was not', "weren't": 'were not', "shouldn't": 'should not',
+    "who's": 'who is',
+    // words the recognizer may write as one word or two
+    checkout: 'check out', checkin: 'check in', takeout: 'take out', pickup: 'pick up',
+    copay: 'co pay', email: 'e mail', goodbye: 'good bye', lunchbox: 'lunch box',
+    stomachache: 'stomach ache', earache: 'ear ache', headache: 'head ache',
   };
   const NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
     'nine', 'ten', 'eleven', 'twelve'];
 
   // "I'd like 4, please." -> ["i","would","like","four","please"]
   function tokens(text) {
-    return String(text).toLowerCase().replace(/[‘’`]/g, "'")
+    return String(text).toLowerCase().replace(/wi[- ]?fi/g, 'wifi').replace(/[‘’`]/g, "'")
       .replace(/[^a-z0-9' ]+/g, ' ').split(/\s+/)
       .map((w) => w.replace(/^'+|'+$/g, '')).filter(Boolean)
       .flatMap((w) => {
         if (Object.prototype.hasOwnProperty.call(CONTRACTIONS, w)) return CONTRACTIONS[w].split(' ');
         if (/^\d+$/.test(w) && NUMBERS[Number(w)]) return [NUMBERS[Number(w)]];
-        return [w];
+        return [w.replace(/'s$/, 's')];  // "driver's" and "drivers" count as the same word
       });
   }
 

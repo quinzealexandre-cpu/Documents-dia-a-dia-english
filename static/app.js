@@ -493,8 +493,90 @@
 
   const chat = { topic: null, items: [], busy: false, error: '' };
   let chatRedraw = () => {};
-  const TOPICS = ['Meu dia', 'Minha família', 'Compras', 'Comida e receitas', 'Médico e saúde',
-    'Escola dos filhos', 'Vizinhos e amigos', 'Viagens'];
+  const TOPICS = ['Meu dia', 'Minha família', 'Minha casa', 'Compras no supermercado', 'Roupas e shopping',
+    'Comida e receitas', 'Restaurante', 'Médico e saúde', 'Escola dos filhos', 'Vizinhos e amigos',
+    'Tempo e clima', 'Carro e trânsito', 'Viagens', 'Banco e contas', 'Telefone e agendamentos',
+    'Festas e feriados', 'Filmes e séries', 'Música', 'Esportes e exercícios', 'Animais de estimação',
+    'Brasil', 'Trabalho', 'Planos e sonhos', 'Emergências'];
+
+  // How long she must stay quiet before her turn is considered finished. A pause between words that is
+  // shorter than this no longer ends the turn. Raise it if Amy still answers too early.
+  const END_PAUSE_MS = 1300;
+  const ANDROID = /Android/i.test(navigator.userAgent);
+
+  function listenUntilQuiet(lang, onDone, onFail, onState, onPartial) {
+    stopAudio();
+    const parts = [];
+    let meta = null;
+    let interim = '';
+    let timer = null;
+    let finished = false;
+    let rec = null;
+    let restarts = 0;
+    const session = {};
+    const disarm = () => { clearTimeout(timer); timer = null; };
+    const arm = () => { disarm(); timer = setTimeout(finish, END_PAUSE_MS); };
+    const close = () => {
+      finished = true;
+      disarm();
+      if (rec) {
+        rec.onresult = rec.onerror = rec.onend = null;
+        try { rec.abort(); } catch (e) { /* already stopped */ }
+      }
+      if (activeRec === session) activeRec = null;
+      onState(false);
+    };
+    function finish() {
+      if (finished) return;
+      close();
+      const text = parts.concat(interim ? [interim] : []).join(' ').replace(/\s+/g, ' ').trim();
+      if (!text) { onFail(MIC_ERRORS['no-speech']); return; }
+      onDone(text, parts.length === 1 && !interim && meta ? meta : { alternatives: [], confidence: 0 });
+    }
+    function fail(msg) {
+      if (finished) return;
+      close();
+      onFail(msg);
+    }
+    function start() {
+      rec = new SR();
+      rec.lang = lang;
+      rec.interimResults = true;
+      rec.maxAlternatives = 3;
+      rec.continuous = !ANDROID;  // Android repeats text in continuous mode; there we restart instead
+      rec.onresult = (e) => {
+        interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          const t = r[0].transcript.trim();
+          if (!r.isFinal) { interim = (interim + ' ' + t).trim(); continue; }
+          if (!t) continue;
+          parts.push(t);
+          meta = { alternatives: Array.from(r).slice(1).map((a) => a.transcript), confidence: r[0].confidence };
+        }
+        onPartial(parts.concat(interim ? [interim] : []).join(' '));
+        if (interim) disarm(); else if (parts.length) arm();
+      };
+      rec.onerror = (e) => {
+        if (e.error === 'no-speech' || e.error === 'aborted') return;  // onend decides
+        fail(MIC_ERRORS[e.error] || 'Não consegui ouvir. Tente de novo.');
+      };
+      rec.onend = () => {
+        if (finished) return;
+        if (interim) { parts.push(interim); interim = ''; }
+        if (!parts.length) { fail(MIC_ERRORS['no-speech']); return; }
+        // The browser stopped at a pause. Keep listening until she has really finished.
+        if (!timer) arm();
+        if (restarts++ < 10) { try { start(); } catch (err) { /* the timer will finish the turn */ } }
+      };
+      rec.start();
+    }
+    session.stop = finish;
+    session.abort = close;
+    try { start(); } catch (e) { onFail('Não consegui ligar o microfone. Tente de novo.'); return; }
+    activeRec = session;
+    onState(true);
+  }
 
   function recognize(lang, onDone, onFail, onState) {
     stopAudio();
@@ -628,10 +710,12 @@
     const micPt = h('button', { class: 'btn small', type: 'button' }, '🇧🇷 Não sei dizer em inglês');
     const listenWith = (btn, lang, idle) => () => {
       if (activeRec) { activeRec.stop(); return; }
-      recognize(lang,
-        (alts, confidence) => send(alts[0], lang, { alternatives: alts.slice(1), confidence }),
+      chat.error = '';
+      listenUntilQuiet(lang,
+        (text, meta) => send(text, lang, meta),
         (msg) => { chat.error = msg; chatRedraw(); },
-        (on) => { btn.classList.toggle('on', on); btn.textContent = on ? 'Ouvindo… fale agora' : idle; });
+        (on) => { btn.classList.toggle('on', on); btn.textContent = on ? 'Ouvindo… toque para enviar' : idle; },
+        (partial) => { status.className = 'chat-status muted'; status.textContent = partial ? '“' + partial + '…”' : ''; });
     };
     mic.addEventListener('click', listenWith(mic, 'en-US', '🎤 Falar'));
     micPt.addEventListener('click', listenWith(micPt, 'pt-BR', '🇧🇷 Não sei dizer em inglês'));

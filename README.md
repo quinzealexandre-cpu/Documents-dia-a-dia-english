@@ -3,7 +3,8 @@
 A self-hosted web app for practicing everyday English out loud. The interface is in
 Brazilian Portuguese; the practice content is in English.
 
-- 8 daily-life situations (supermarket, restaurant, doctor, school, small talk, phone, street, bank/post office), 64 phrases
+- 12 daily-life situations with 50 phrases each (600 in total): supermarket, restaurant, doctor, school, small talk,
+  phone, street, bank/post office, clothes shopping, car, travel, emergencies
 - **Falar (speaking):** she listens to the phrase, says it, and the app shows which words it understood and which to repeat
 - **Ouvir (listening):** she hears the phrase and rebuilds it from shuffled word tiles
 - **Conversar com a Amy (free conversation):** she picks any topic and talks with an AI tutor that answers
@@ -61,6 +62,9 @@ How it works and what it cannot do:
   the "Repetir" button checks whether the corrected sentence is understood. It cannot judge accent or
   individual sounds.
 - "Não sei dizer em inglês" lets her say something in Portuguese; Amy teaches the English for it.
+- Amy waits until she has been quiet for about 1.3 seconds before answering, so a pause between words does
+  not cut her off. Tapping the microphone button again sends the sentence at once. The wait is the
+  `END_PAUSE_MS` value near the top of the conversation code in `static/app.js`.
 - Conversations are not stored on the server.
 
 ## Free test hosting on Render
