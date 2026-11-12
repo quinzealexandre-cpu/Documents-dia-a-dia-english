@@ -62,9 +62,10 @@ How it works and what it cannot do:
   the "Repetir" button checks whether the corrected sentence is understood. It cannot judge accent or
   individual sounds.
 - "Não sei dizer em inglês" lets her say something in Portuguese; Amy teaches the English for it.
-- Amy waits until she has been quiet for about 1.3 seconds before answering, so a pause between words does
-  not cut her off. Tapping the microphone button again sends the sentence at once. The wait is the
-  `END_PAUSE_MS` value near the top of the conversation code in `static/app.js`.
+- Amy answers only after the learner has been quiet for a while, so a pause between words does not cut her
+  off. Each person chooses the wait in the conversation screen ("A Amy espera"): 1.5, 2.5 (default) or 4 seconds,
+  or "only when I tap the button". The choice is remembered on that device. Tapping the microphone button
+  again always sends the sentence at once.
 - Conversations are not stored on the server.
 
 ## Free test hosting on Render
